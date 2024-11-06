@@ -70,6 +70,11 @@ function App() {
               <Image source={require('./src/assets/images/img_car.png')} width={50} height={50}/>
             </View>
           </View>
+          <View>
+            <Button>
+              
+            </Button>
+          </View>
         </View>
         {/* end banner */}
       </ScrollView>
