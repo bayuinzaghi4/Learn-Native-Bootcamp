@@ -25,6 +25,7 @@ export default function Button({
 const styles = StyleSheet.create({
     button: {
         padding: 10,
+        alignItems:'center'
     },
     buttonTitle: {
         textAlign: 'center',
