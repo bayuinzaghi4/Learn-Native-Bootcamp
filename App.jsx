@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 
 import Button from './src/components/Button';
+import Icon from 'react-native-vector-icons/Feather';
 
 const COLORS = {
   primary: '#A43333',
@@ -70,11 +71,20 @@ function App() {
               <Image source={require('./src/assets/images/img_car.png')} width={50} height={50}/>
             </View>
           </View>
-          <View>
-            <Button>
-              
-            </Button>
-          </View>
+        </View>
+        <View style={styles.iconContainer}>
+          <Button>
+            <Icon name="truck" size={30} color="#fff" />
+          </Button>
+          <Button>
+            <Icon name="box" size={30} color="#fff" />
+          </Button>
+          <Button>
+            <Icon name="key" size={30} color="#fff" />
+          </Button>
+          <Button>
+            <Icon name="camera" size={30} color="#fff" />
+          </Button>
         </View>
         {/* end banner */}
       </ScrollView>
@@ -123,6 +133,9 @@ const styles = StyleSheet.create({
   bannerDesc:{
     paddingHorizontal: 10,
     width:'40%'
+  },
+  iconContainer:{
+    marginTop: 50
   }
 });
 
