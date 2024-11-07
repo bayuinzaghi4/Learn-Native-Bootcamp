@@ -46,7 +46,7 @@ const CARS = [{
 }]
 
 const ButtonIcon = ({ icon, title }) => (
-  <Button style={styles.buttonIcon}>
+  <Button>
     <View style={styles.iconWrapper}>
       <Icon name={icon} size={25} color="#fff" />
     </View>
@@ -63,62 +63,63 @@ function App() {
   };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={backgroundStyle}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={COLORS.primary}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic">
-        <View style={styles.header}>
-          <View style={styles.headerContainer}>
-            <View>
-              <Text style={styles.headerText}>Hi, Nama</Text>
-              <Text style={styles.headerTextLocation}>Your Location</Text>
+      {/* end banner */}
+      <FlatList
+        data={CARS}
+        ListHeaderComponent={
+          <>
+            <View style={styles.header}>
+              <View style={styles.headerContainer}>
+                <View>
+                  <Text style={styles.headerText}>Hi, Nama</Text>
+                  <Text style={styles.headerTextLocation}>Your Location</Text>
+                </View>
+                <View >
+                  <Image style={styles.imageRounded} source={{ uri: "https://i.pravatar.cc/100" }} width={50} height={50} />
+                </View>
+              </View>
+              {/* banner */}
+              <View style={{
+                ...styles.headerContainer,
+                ...styles.bannerContainer
+              }}>
+                <View style={styles.bannerDesc}>
+                  <Text style={styles.bannerText}>Sewa Mobil Berkualitas di kawasanmu</Text>
+                  <Button
+                    color={COLORS.secondary}
+                    title='Sewa Mobil'
+                  />
+                </View>
+                <View style={styles.bannerImage}>
+                  <Image source={require('./src/assets/images/img_car.png')} width={50} height={50} />
+                </View>
+              </View>
             </View>
-            <View >
-              <Image style={styles.imageRounded} source={{ uri: "https://i.pravatar.cc/100" }} width={50} height={50} />
+            <View style={styles.iconContainer}>
+              <ButtonIcon icon="truck" title="Sewa Mobil" />
+              <ButtonIcon icon="box" title="Oleh-Oleh" />
+              <ButtonIcon icon="key" title="Penginapan" />
+              <ButtonIcon icon="camera" title="Wisata" />
             </View>
-          </View>
-          {/* banner */}
-          <View style={{
-            ...styles.headerContainer,
-            ...styles.bannerContainer
-          }}>
-            <View style={styles.bannerDesc}>
-              <Text style={styles.bannerText}>Sewa Mobil Berkualitas di kawasanmu</Text>
-              <Button
-                color={COLORS.secondary}
-                title='Sewa Mobil'
-              />
-            </View>
-            <View style={styles.bannerImage}>
-              <Image source={require('./src/assets/images/img_car.png')} width={50} height={50} />
-            </View>
-          </View>
-        </View>
-        <View style={styles.iconContainer}>
-          <ButtonIcon icon="truck" title="Sewa Mobil"/>
-          <ButtonIcon icon="box" title="Oleh-Oleh"/>
-          <ButtonIcon icon="key" title="Penginapan"/>
-          <ButtonIcon icon="camera" title="Wisata"/>
-        </View>
-        {/* end banner */}
-        <FlatList
-          data={CARS}
-          renderItem={({item}) => 
-            <CarList
-              key={item.id}
-              image={{ uri: item.image }}
-              carName={item.name}
-              passengers={5}
-              baggage={4}
-              price={item.price}
-            />
-          }
-          keyExtractor={item => item.id}
-        />
-      </ScrollView>
+          </>
+        }
+        renderItem={({ item, index }) =>
+          <CarList
+            key={item.toString()}
+            image={{ uri: item.image }}
+            carName={item.name}
+            passengers={5}
+            baggage={4}
+            price={item.price}
+          />
+        }
+        keyExtractor={item => item.id}
+      />
     </SafeAreaView>
   );
 }
@@ -173,16 +174,16 @@ const styles = StyleSheet.create({
   },
   iconWrapper: {
     backgroundColor: COLORS.primary,
-    borderRadius:5,
+    borderRadius: 5,
     padding: 15
   },
-  iconText:{
-    color:'#fff',
+  iconText: {
+    color: '#fff',
     fontSize: 12,
     fontWeight: 700,
     minWidth: 65,
     marginTop: 5,
-    textAlign:'center'
+    textAlign: 'center'
   }
 });
 
