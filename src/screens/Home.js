@@ -10,8 +10,6 @@ import {
   FlatList,
   Image,
   SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   useColorScheme,
@@ -23,6 +21,7 @@ import axios from 'axios';
 import Button from '../components/Button';
 import Icon from 'react-native-vector-icons/Feather';
 import CarList from '../components/CarList';
+import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 
 const COLORS = {
   primary: '#A43333',
@@ -30,22 +29,6 @@ const COLORS = {
   darker: '#121212',
   lighter: '#ffffff'
 }
-
-const CARS = [{
-  name: 'Innova Zenix',
-  image: 'https://medias.auto2000.co.id/sys-master-hybrismedia/h1b/h8a/8846828240926/Thumbnail_Black_Zenix.png',
-  price: 230000
-},
-{
-  name: 'Yaris',
-  image: 'https://medias.auto2000.co.id/sys-master-hybrismedia/h05/h86/8846786625566/4-black-+-super-white-ii_optimized.png',
-  price: 150000
-},
-{
-  name: 'Yaris',
-  image: 'https://medias.auto2000.co.id/sys-master-hybrismedia/h05/h86/8846786625566/4-black-+-super-white-ii_optimized.png',
-  price: 150000
-}]
 
 const ButtonIcon = ({ icon, title }) => (
   <Button>
@@ -80,7 +63,7 @@ function Home() {
 
   return (
     <SafeAreaView style={backgroundStyle}>
-      <StatusBar
+      <FocusAwareStatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={COLORS.primary}
       />
