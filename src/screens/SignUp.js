@@ -46,12 +46,11 @@ export default function SignUp() {
         } catch (e) {
             setModalVisible(true)
             setErrorMessage(e.response.data.message)
-            console.log(e.response)
         }
     }
 
     useEffect(() => {
-        return () => {
+        if(modalVisible === true){
             if(errorMessage === null) navigation.navigate('SignIn')
             setTimeout(() => {
                 setModalVisible(false)
@@ -97,7 +96,13 @@ export default function SignUp() {
                             {errorMessage !== null ?
                                 <>
                                     <Icon size={32} name={'x-circle'} />
-                                    <Text>{errorMessage}</Text>
+                                    {Array.isArray(errorMessage) ? 
+                                        errorMessage.map((e) => {
+                                            return <Text>{e.message}</Text>
+                                        })
+                                    :
+                                        <Text>{errorMessage}</Text>
+                                    }
                                 </>
                                 :
                                 <>

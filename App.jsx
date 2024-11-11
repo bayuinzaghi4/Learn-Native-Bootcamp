@@ -48,7 +48,7 @@ function App() {
       <Stack.Navigator>
         <Stack.Screen options={{
           headerShown:false
-        }} name="Home" component={Tabs} />
+        }} name="HomeTabs" component={Tabs} />
         <Stack.Screen options={{
           headerShown:false
         }} name="SignIn" component={SignIn} />

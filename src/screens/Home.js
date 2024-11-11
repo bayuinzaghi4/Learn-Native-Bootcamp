@@ -5,7 +5,7 @@
  * @format
  */
 
-import {useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import {
   FlatList,
   Image,
@@ -22,6 +22,8 @@ import Button from '../components/Button';
 import Icon from 'react-native-vector-icons/Feather';
 import CarList from '../components/CarList';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const COLORS = {
   primary: '#A43333',
@@ -41,20 +43,37 @@ const ButtonIcon = ({ icon, title }) => (
 
 function Home() {
   const [cars, setCars] = useState([])
+  const [user, setUser] = useState(null)
   const isDarkMode = useColorScheme() === 'dark';
-  
-  useEffect(() => {
-    const fetchCars = async () => {
-      try{
-        const res = await axios('http://192.168.100.2:3000/api/v1/cars')
-        console.log(res.data)
-        setCars(res.data)
-      } catch (e) {
-        console.log(e)
-      }
+
+  const getUser = async () => {
+    try {
+      const res = await AsyncStorage.getItem('user')
+      setUser(JSON.parse(res))
+      console.log(res)
+    } catch (e) {
+      console.log(e)
+      setUser(null)
     }
+  }
+
+  const fetchCars = async () => {
+    try {
+      const res = await axios('http://192.168.100.2:3000/api/v1/cars')
+      console.log(res.data)
+      setCars(res.data)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  useEffect(() => {
     fetchCars()
   }, [])
+
+  useFocusEffect(() => {
+    getUser()
+  })
 
   const backgroundStyle = {
     // overflow: 'visible',
@@ -75,7 +94,7 @@ function Home() {
             <View style={styles.header}>
               <View style={styles.headerContainer}>
                 <View>
-                  <Text style={styles.headerText}>Hi, Nama</Text>
+                  <Text style={styles.headerText}>Hi, {user ? user.fullname : 'Guest'}</Text>
                   <Text style={styles.headerTextLocation}>Your Location</Text>
                 </View>
                 <View >
