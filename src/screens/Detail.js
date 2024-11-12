@@ -10,7 +10,7 @@ import {
 import { useState, useEffect } from 'react';
 import Icon from 'react-native-vector-icons/Feather';
 
-import Markdown, { MarkdownIt } from 'react-native-markdown-display';
+import Markdown from 'react-native-markdown-display';
 import Button from '../components/Button';
 import { Row, Col } from '../components/Grid';
 import axios from 'axios';
