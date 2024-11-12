@@ -7,6 +7,7 @@ import List from './src/screens/List';
 import Akun from './src/screens/Akun';
 import SignIn from './src/screens/SignIn';
 import SignUp from './src/screens/SignUp';
+import Detail from './src/screens/Detail';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -55,6 +56,9 @@ function App() {
         <Stack.Screen options={{
           headerShown:false
         }} name="SignUp" component={SignUp} />
+        <Stack.Screen options={{
+          headerShown:false
+        }} name="Detail" component={Detail} />
       </Stack.Navigator>
     </NavigationContainer>
   );

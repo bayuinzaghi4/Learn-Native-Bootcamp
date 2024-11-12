@@ -5,7 +5,7 @@
  * @format
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   FlatList,
   Image,
@@ -23,7 +23,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import CarList from '../components/CarList';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 const COLORS = {
   primary: '#A43333',
@@ -42,6 +42,7 @@ const ButtonIcon = ({ icon, title }) => (
 )
 
 function Home() {
+  const navigation = useNavigation();
   const [cars, setCars] = useState([])
   const [user, setUser] = useState(null)
   const isDarkMode = useColorScheme() === 'dark';
@@ -49,11 +50,11 @@ function Home() {
   const getUser = async () => {
     try {
       const res = await AsyncStorage.getItem('user')
-      setUser(JSON.parse(res))
-      console.log(res)
+      setUser(JSON.parse(res));
+      console.log(res);
     } catch (e) {
-      console.log(e)
-      setUser(null)
+      console.log(e);
+      setUser(null);
     }
   }
 
@@ -71,9 +72,14 @@ function Home() {
     fetchCars()
   }, [])
 
-  useFocusEffect(() => {
-    getUser()
-  })
+  useFocusEffect(
+    useCallback(() => {
+      getUser()
+      return () => {
+        setUser(null)
+      };
+    }, [])
+  )
 
   const backgroundStyle = {
     // overflow: 'visible',
@@ -134,6 +140,7 @@ function Home() {
             passengers={5}
             baggage={4}
             price={item.price}
+            onPress={() => navigation.navigate('Detail', {id: item.id})}
           />
         }
         keyExtractor={item => item.id}
