@@ -18,6 +18,7 @@ export const userSlice = createSlice({
             state.isLogin = false;
             state.token = null;
         },
+        resetState: (state) => initialState,
     },
     extraReducers: (builder) => {
         //Post Login Reducer
@@ -33,7 +34,8 @@ export const userSlice = createSlice({
         });
         builder.addCase(postLogin.rejected, (state, action) => {
             state.status = 'failed';
-            state.message = action.error;
+            console.log(action);
+            state.message = action.payload;
         });
 
         //Get Profile Reducers
@@ -47,12 +49,13 @@ export const userSlice = createSlice({
         });
         builder.addCase(getProfile.rejected, (state, action) => {
             state.status = 'failed';
-            state.message = action.error;
+            console.log(action);
+            state.message = action.payload;
         });
     }
 });
 
 export const selectUser = (state) => state.user; // selector untuk mengambil state user
-export const { logout } = userSlice.actions; // action untuk logout
+export const { logout, resetState } = userSlice.actions; // action untuk logout
 export { postLogin, getProfile }; // action untuk panggil api postLogin dan get Profile
 export default userSlice.reducer; // user reducer untuk di tambahkan ke store

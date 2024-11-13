@@ -1,12 +1,11 @@
-import { KeyboardAvoidingView, Platform, View, Text, Image, TextInput, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import Button from '../components/Button';
-import { Link, useNavigation } from '@react-navigation/native';
-import ModalPopup from '../components/Modal';
+import { KeyboardAvoidingView, View, Text, Image, TextInput, StyleSheet, ScrollView } from 'react-native'
+import React, { useEffect, useReducer, useState } from 'react'
+import Button from '../components/Button'
+import { Link, useNavigation } from '@react-navigation/native'
+import ModalPopup from '../components/Modal'
 import Icon from 'react-native-vector-icons/Feather';
-//redux
-import { useDispatch, useSelector } from 'react-redux';
-import { postLogin, selectUser, resetState } from '../redux/reducers/user';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const initialFormState = {
   email: '',
@@ -15,58 +14,56 @@ const initialFormState = {
 
 export default function SignIn() {
   const navigation = useNavigation();
-  const dispatch = useDispatch();
-  const user = useSelector(selectUser); // (state) => state.user
   const [modalVisible, setModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [formData, setFormData] = useState(initialFormState);
+  const [formData, setFormData] = useState(initialFormState)
 
   const handleChange = (val, name) => {
     setFormData({
       ...formData,
-      [name]: val,
+      [name]: val
     });
-  };
+  }
 
   const handleSubmit = async () => {
-    await dispatch(postLogin(formData));
-  };
-
-  useEffect(() => {
-    dispatch(resetState());
-  }, []);
-
-  useEffect(() => {
-    if (user.status === 'success') {
-      setModalVisible(true);
-      setErrorMessage(null);
-      setTimeout(() => {
-        setModalVisible(false);
-        navigation.navigate('HomeTabs', { screen: 'Profile' });
-      }, 1000);
-    } else if (user.status === 'failed') {
-      setModalVisible(true);
-      setErrorMessage(user.message);
-      setTimeout(() => {
-        setModalVisible(false);
-      }, 2000)
+    try {
+      const res = await axios.post("http://192.168.100.2:3000/api/v1/auth/signin",
+        JSON.stringify(formData), {
+        headers: {
+          "Content-Type": 'application/json'
+        }
+      }
+      )
+      const { data } = res.data
+      console.log('res', data)
+      await AsyncStorage.setItem('token', data.token)
+      await AsyncStorage.setItem('user', JSON.stringify({
+        fullname: data.user.fullname,
+        email: data.user.email,
+      }))
+      setModalVisible(true)
+      setErrorMessage(null)
+    } catch (e) {
+      setModalVisible(true)
+      setErrorMessage(e.response.data.message)
     }
-  }, [navigation, user]);
+  }
+
+  useEffect(() => {
+    if (modalVisible === true) {
+      if (errorMessage === null) navigation.navigate('HomeTabs', { screen: 'Profile' })
+      setTimeout(() => {
+        setModalVisible(false)
+        setErrorMessage(null)
+      }, 1000)
+    }
+  }, [modalVisible])
 
   return (
     <ScrollView>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.authWrapper}>
-        <ModalPopup visible={user.status === 'loading'}>
-          <View style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-            <ActivityIndicator />
-          </View>
-        </ModalPopup>
         <View style={{ flex: 1 }}>
           <Image source={require('../assets/images/logo_tmmin.png')} />
           <Text style={styles.authTitle}>Welcome Back!</Text>

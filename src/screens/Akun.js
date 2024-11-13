@@ -2,64 +2,24 @@ import { View, Text, Image } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react'
 import Button from '../components/Button';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
+import { getProfile, selectUser, logout } from '../redux/reducers/user';
 
 export default function Akun() {
     const navigation = useNavigation();
-    const [user, setUser] = useState(null)
-    const [token, setToken] = useState(null)
-    const [isLogin, setIsLogin] = useState(false)
-    const getToken = async () => {
-        try {
-            const res = await AsyncStorage.getItem('token')
-            console.log(res)
-            setToken(res)
-        } catch (e) {
-            console.log(e)
-        }
-    }
-    const logout = async () => {
-        try {
-            const res = await AsyncStorage.multiRemove(['token', 'user'])
-            setToken(res)
-            setIsLogin(false)
-            setUser(null)
-        } catch (e) {
-            console.log(e)
-        }
-    }
-    const getProfile = async () => {
-        try {
-            const res = await axios('http://192.168.100.2:3000/api/v1/auth/whoami', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-            setUser(res.data.data.user)
-            console.log(res.data.data.user)
-            setIsLogin(true)
-        } catch (e) {
-            console.log(e)
-        }
-    }
+    const user = useSelector(selectUser);
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        if (!token) getToken()
-    }, [])
-
-    useEffect(() => {
-        console.log(token)
-        if (token) {
-            setIsLogin(true)
-            getProfile()
+        if(!user.data && user.token){
+            dispatch(getProfile(user.token));
         }
-    }, [token])
+    }, [user]);
 
     return (
         <View>
             {
-                !isLogin ?
+                !user.isLogin ?
                     <View>
                         <Image source={require('../assets/images/akun_bg.png')} />
                         <Text>Upss kamu belum memiliki akun. Mulai buat akun agar transaksi di TMMIN Car Rental lebih mudah</Text>
@@ -70,10 +30,10 @@ export default function Akun() {
                         />
                     </View> :
                     <View>
-                        <Image height={50} width={50} source={{ uri: user?.avatar ? user.avatar : "https://i.pravatar.cc/100" }} />
-                        <Text>Halo, {user?.fullname}</Text>
+                        <Image height={50} width={50} source={{ uri: user.data?.avatar ? user.data?.avatar : "https://i.pravatar.cc/100" }} />
+                        <Text>Halo, {user.data?.fullname}</Text>
                         <Button
-                            onPress={logout}
+                            onPress={() => dispatch(logout())}
                             title={'Logout'}
                             color={'#A43333'}
                         />
