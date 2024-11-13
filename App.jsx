@@ -3,6 +3,11 @@ import Icon from 'react-native-vector-icons/Feather';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { ActivityIndicator } from 'react-native';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from './src/redux/store';
+
 import List from './src/screens/List';
 import Akun from './src/screens/Akun';
 import SignIn from './src/screens/SignIn';
@@ -45,24 +50,27 @@ function Tabs(){
 
 function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen options={{
-          headerShown:false
-        }} name="HomeTabs" component={Tabs} />
-        <Stack.Screen options={{
-          headerShown:false
-        }} name="SignIn" component={SignIn} />
-        <Stack.Screen options={{
-          headerShown:false
-        }} name="SignUp" component={SignUp} />
-        <Stack.Screen options={{
-          headerShown:false
-        }} name="Detail" component={Detail} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <PersistGate loading={<ActivityIndicator/>} persistor={persistor}>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen options={{
+              headerShown:false
+            }} name="HomeTabs" component={Tabs} />
+            <Stack.Screen options={{
+              headerShown:false
+            }} name="SignIn" component={SignIn} />
+            <Stack.Screen options={{
+              headerShown:false
+            }} name="SignUp" component={SignUp} />
+            <Stack.Screen options={{
+              headerShown:false
+            }} name="Detail" component={Detail} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PersistGate>
+    </Provider>
   );
 }
-
 
 export default App;
