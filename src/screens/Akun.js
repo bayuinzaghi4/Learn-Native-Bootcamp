@@ -1,9 +1,10 @@
 import { View, Text, Image } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import Button from '../components/Button';
 import { useSelector, useDispatch } from 'react-redux';
 import { getProfile, selectUser, logout } from '../redux/reducers/user';
+import { resetState } from '../redux/reducers/cars';
 
 export default function Akun() {
     const navigation = useNavigation();
@@ -33,7 +34,7 @@ export default function Akun() {
                         <Image height={50} width={50} source={{ uri: user.data?.avatar ? user.data?.avatar : "https://i.pravatar.cc/100" }} />
                         <Text>Halo, {user.data?.fullname}</Text>
                         <Button
-                            onPress={() => dispatch(logout())}
+                            onPress={() => dispatch(logout(), dispatch(resetState()))}
                             title={'Logout'}
                             color={'#A43333'}
                         />

@@ -1,10 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import { useState, useEffect, useCallback } from 'react';
 import {
   FlatList,
@@ -16,14 +9,16 @@ import {
   View,
 } from 'react-native';
 
-import axios from 'axios';
-
 import Button from '../components/Button';
 import Icon from 'react-native-vector-icons/Feather';
 import CarList from '../components/CarList';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+
+// REDUX
+import { useDispatch, useSelector } from 'react-redux';
+import { getCars, selectCars, resetState } from '../redux/reducers/cars';
+import { selectUser } from '../redux/reducers/user';
 
 const COLORS = {
   primary: '#A43333',
@@ -43,46 +38,26 @@ const ButtonIcon = ({ icon, title }) => (
 
 function Home() {
   const navigation = useNavigation();
-  const [cars, setCars] = useState([])
-  const [user, setUser] = useState(null)
   const isDarkMode = useColorScheme() === 'dark';
-
-  const getUser = async () => {
-    try {
-      const res = await AsyncStorage.getItem('user')
-      setUser(JSON.parse(res));
-      console.log(res);
-    } catch (e) {
-      console.log(e);
-      setUser(null);
-    }
-  }
-
-  const fetchCars = async () => {
-    try {
-      const res = await axios('http://192.168.100.2:3000/api/v1/cars')
-      console.log(res.data)
-      setCars(res.data)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  useEffect(() => {
-    fetchCars()
-  }, [])
+  const cars = useSelector(selectCars);
+  const user = useSelector(selectUser);
+  const dispatch = useDispatch();
 
   useFocusEffect(
     useCallback(() => {
-      getUser()
-      return () => {
-        setUser(null)
-      };
-    }, [])
-  )
+      if(user.token)
+      dispatch(getCars(user.token))
+    }, [user])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+    if(!user.data && user.token)
+        dispatch(getProfile(user.token))
+    }, [user])
+);
 
   const backgroundStyle = {
-    // overflow: 'visible',
     backgroundColor: isDarkMode ? COLORS.darker : COLORS.lighter,
   };
 
@@ -100,7 +75,7 @@ function Home() {
             <View style={styles.header}>
               <View style={styles.headerContainer}>
                 <View>
-                  <Text style={styles.headerText}>Hi, {user ? user.fullname : 'Guest'}</Text>
+                  <Text style={styles.headerText}>Hi, {user ? user.data?.fullname : 'Guest'}</Text>
                   <Text style={styles.headerTextLocation}>Your Location</Text>
                 </View>
                 <View >
@@ -115,6 +90,7 @@ function Home() {
                 <View style={styles.bannerDesc}>
                   <Text style={styles.bannerText}>Sewa Mobil Berkualitas di kawasanmu</Text>
                   <Button
+                    borderRadius={5}
                     color={COLORS.secondary}
                     title='Sewa Mobil'
                   />
@@ -132,13 +108,13 @@ function Home() {
             </View>
           </>
         }
-        renderItem={({ item, index }) =>
+        renderItem={({ item }) =>
           <CarList
             key={item.id}
             image={{ uri: item.img }}
             carName={item.name}
-            passengers={5}
-            baggage={4}
+            passengers={item.seat}
+            baggage={item.baggage}
             price={item.price}
             onPress={() => navigation.navigate('Detail', {id: item.id})}
           />
@@ -203,7 +179,7 @@ const styles = StyleSheet.create({
     padding: 15
   },
   iconText: {
-    color: '#fff',
+    color: 'black',
     fontSize: 12,
     fontWeight: 700,
     minWidth: 65,

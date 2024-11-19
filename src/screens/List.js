@@ -1,47 +1,38 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useCallback } from 'react';
+import {FlatList,SafeAreaView,useColorScheme} from 'react-native';
 
-import { useState, useEffect } from 'react';
-import {
-    FlatList,
-    SafeAreaView,
-    useColorScheme,
-} from 'react-native';
-
-import axios from 'axios';
 import CarList from '../components/CarList';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
+
+//redux
+import { useDispatch, useSelector } from 'react-redux';
+import { selectCars, getCars, resetState } from '../redux/reducers/cars';
+import { selectUser } from '../redux/reducers/user';
+
 
 const COLORS = {
     primary: '#A43333',
     secondary: '#5CB85F',
     darker: '#121212',
     lighter: '#ffffff'
-}
+};
 
 function List() {
-    const [cars, setCars] = useState([])
+    const navigation = useNavigation();
     const isDarkMode = useColorScheme() === 'dark';
+    const dispatch = useDispatch();
+    const cars = useSelector(selectCars)
+    const user = useSelector(selectUser)
 
-    useEffect(() => {
-        const fetchCars = async () => {
-            try {
-                const res = await axios('http://192.168.100.2:3000/api/v1/cars')
-                console.log(res.data)
-                setCars(res.data)
-            } catch (e) {
-                console.log(e)
-            }
-        }
-        fetchCars()
-    }, [])
+    useFocusEffect(
+        useCallback(() => {
+            if(user.token) 
+            dispatch(getCars(user.token))
+            }, [user]) 
+    );
 
     const backgroundStyle = {
-        // overflow: 'visible',
         backgroundColor: isDarkMode ? COLORS.darker : COLORS.lighter,
     };
 
@@ -54,14 +45,15 @@ function List() {
             {/* end banner */}
             <FlatList
                 data={cars.data}
-                renderItem={({ item, index }) =>
+                renderItem={({ item }) =>
                     <CarList
                         key={item.id}
                         image={{ uri: item.img }}
                         carName={item.name}
-                        passengers={5}
-                        baggage={4}
+                        passengers={item.seat}
+                        baggage={item.baggage}
                         price={item.price}
+                        onPress={() => navigation.navigate('Detail', {id: item.id})}
                     />
                 }
                 keyExtractor={item => item.id}

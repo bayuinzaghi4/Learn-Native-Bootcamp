@@ -13,11 +13,7 @@ export const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: { // kumpulan method untuk mengubah initial state secara synchronous
-        logout: (state, action) => {
-            state.data = null;
-            state.isLogin = false;
-            state.token = null;
-        },
+        logout: (state) => initialState,
         resetState: (state) => initialState,
     },
     extraReducers: (builder) => {

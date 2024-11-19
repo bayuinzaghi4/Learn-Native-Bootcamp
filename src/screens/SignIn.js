@@ -1,12 +1,22 @@
-import { KeyboardAvoidingView, Platform, View, Text, Image, TextInput, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import Button from '../components/Button';
-import { Link, useNavigation } from '@react-navigation/native';
-import ModalPopup from '../components/Modal';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  View,
+  Text,
+  Image,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator
+} from 'react-native';
+import React, { useState, useCallback } from 'react';
 import Icon from 'react-native-vector-icons/Feather';
+import { Link, useNavigation, useFocusEffect } from '@react-navigation/native';
+import Button from '../components/Button';
+import ModalPopup from '../components/Modal';
 //redux
 import { useDispatch, useSelector } from 'react-redux';
-import { postLogin, selectUser, resetState } from '../redux/reducers/user';
+import { postLogin, resetState, selectUser } from '../redux/reducers/user';
 
 const initialFormState = {
   email: '',
@@ -32,27 +42,25 @@ export default function SignIn() {
     await dispatch(postLogin(formData));
   };
 
-  useEffect(() => {
-    dispatch(resetState());
-  }, []);
-
-  useEffect(() => {
-    if (user.status === 'success') {
-      setModalVisible(true);
-      setErrorMessage(null);
-      setTimeout(() => {
-        setModalVisible(false);
-        navigation.navigate('HomeTabs', { screen: 'Profile' });
-      }, 1000);
-    } else if (user.status === 'failed') {
-      setModalVisible(true);
-      setErrorMessage(user.message);
-      setTimeout(() => {
-        setModalVisible(false);
-      }, 2000)
-    }
-  }, [navigation, user]);
-
+  useFocusEffect(
+    useCallback(() => {
+      if (user.status === 'success') {
+        setModalVisible(true);
+        setErrorMessage(null);
+        setTimeout(() => {
+          setModalVisible(false);
+          navigation.navigate('HomeTabs', { screen: 'Profile' });
+        }, 1000);
+      } else if (user.status === 'failed') {
+        setModalVisible(true);
+        dispatch(resetState())
+        setErrorMessage(user.message);
+        setTimeout(() => {
+          setModalVisible(false);
+        }, 1000)
+      }
+    }, [user])
+  )
   return (
     <ScrollView>
       <KeyboardAvoidingView
@@ -69,6 +77,7 @@ export default function SignIn() {
         </ModalPopup>
         <View style={{ flex: 1 }}>
           <Image source={require('../assets/images/logo_tmmin.png')} />
+          <View style={styles.iniContainer}>
           <Text style={styles.authTitle}>Welcome Back!</Text>
           <View>
             <View style={styles.inputWrapper}>
@@ -87,29 +96,32 @@ export default function SignIn() {
             />
           </View>
           <View>
-            <Text style={styles.authFooterText}>Don’t have an account? <Link screen="SignUp">Sign Up for free</Link></Text>
+            <Text style={styles.authFooterText}>Don’t have an account? <Link screen="SignUp" >Sign Up for free</Link></Text>
           </View>
           <ModalPopup visible={modalVisible}>
-            <View style={styles.modalBackground}>
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalBackground}>
               {errorMessage !== null ?
                 <>
-                  <Icon size={32} name={'x-circle'} />
+                  <Icon size={32} name={'x-circle'} color="red" style={styles.icon} />
                   {Array.isArray(errorMessage) ?
-                    errorMessage.map((e) => {
-                      return <Text>{e.message}</Text>
+                    errorMessage.map((e, index) => {
+                      return <Text key={index} style={styles.errorText}>{e.message}</Text>
                     })
                     :
-                    <Text>{errorMessage}</Text>
+                    <Text style={styles.errorText} > {errorMessage} </Text>
                   }
                 </>
                 :
                 <>
-                  <Icon size={32} name={'check-circle'} />
-                  <Text>Berhasil Login!</Text>
+                  <Icon size={32} name={'check-circle'}  style={styles.icon} />
+                  <Text style={styles.successText} > Berhasil Login! </Text>
                 </>
               }
+              </View>
             </View>
           </ModalPopup>
+        </View>
         </View>
       </KeyboardAvoidingView>
     </ScrollView>
@@ -127,6 +139,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 20
   },
+  iniContainer: {
+    marginTop: 100
+  },
   inputWrapper: {
     marginBottom: 20
   },
@@ -143,11 +158,35 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     textAlign: "center"
   },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   modalBackground: {
     width: '90%',
     backgroundColor: '#fff',
-    elevation: 20,
-    borderRadius: 4,
-    padding: 20
-  }
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center', // Memusatkan secara horizontal
+    justifyContent: 'center', // Memusatkan secara vertikal
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  icon: {
+    marginBottom: 10,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  successText: {
+    color: 'green',
+    fontSize: 16,
+    textAlign: 'center',
+  },
 })

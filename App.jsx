@@ -13,6 +13,9 @@ import Akun from './src/screens/Akun';
 import SignIn from './src/screens/SignIn';
 import SignUp from './src/screens/SignUp';
 import Detail from './src/screens/Detail';
+import PaymentScreen from './src/screens/Payment';
+import PaymentDetailScreen from './src/screens/ConfirmPayment';
+import Order from './src/screens/Order';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -35,6 +38,14 @@ function Tabs(){
         }} 
         name="List" 
         component={List} 
+      />
+      <Tab.Screen 
+        options={{
+          title: 'Order',
+          tabBarIcon: () => <Icon name={"shopping-cart"} size={25} color="#A43333" />
+        }} 
+        name="Order" 
+        component={Order} 
       />
       <Tab.Screen 
         options={{
@@ -66,6 +77,12 @@ function App() {
             <Stack.Screen options={{
               headerShown:false
             }} name="Detail" component={Detail} />
+            <Stack.Screen options={{
+              headerShown:false
+            }} name="Payment" component={PaymentScreen} />
+            <Stack.Screen options={{
+              headerShown:false
+            }} name="Upload" component={PaymentDetailScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </PersistGate>

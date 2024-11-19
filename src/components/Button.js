@@ -6,12 +6,14 @@ export default function Button({
     children, 
     onPress, 
     color, 
-    style
+    style,
+    borderRadius
 }) {
   return (
     <Pressable 
         onPress={onPress}
         style={{
+            borderRadius: borderRadius,
             backgroundColor: color,
             ...styles.button,
             ...style
