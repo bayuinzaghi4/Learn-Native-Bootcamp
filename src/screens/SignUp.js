@@ -13,7 +13,7 @@ const initialFormState = {
 
 export default function SignUp() {
     const navigation = useNavigation();
-    const [formData, setFormData] = useState(initialFormState)
+    const [formData, setFormData] = useState(initialFormState);
     const [modalVisible, setModalVisible] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
 

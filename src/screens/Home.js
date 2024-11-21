@@ -18,6 +18,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 // REDUX
 import { useDispatch, useSelector } from 'react-redux';
 import { getCars, selectCars, resetState } from '../redux/reducers/cars';
+import { logout	 } from '../redux/reducers/user';
 import { selectUser } from '../redux/reducers/user';
 
 const COLORS = {
@@ -48,6 +49,14 @@ function Home() {
       if(user.token)
       dispatch(getCars(user.token))
     }, [user])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if(!user.token){
+      dispatch(resetState())
+      dispatch(logout())}
+    }, [user.token])
   );
 
   useFocusEffect(

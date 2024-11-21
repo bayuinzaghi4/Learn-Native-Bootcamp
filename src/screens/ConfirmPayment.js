@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
     View,
     Text,
@@ -8,16 +8,35 @@ import {
     Alert,
     Image
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Feather';
 import CountDown from 'react-native-countdown-component-maintained';
 import { formatCurrency } from '../utils/formatCurrency'; // Pastikan fungsi formatCurrency Anda sudah diimport
 import Button from '../components/Button';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { statusChange, selectOrder } from '../redux/reducers/order';
+import {useSelector, useDispatch} from 'react-redux';
+
+
 export default function PaymentDetailScreen({ route }) {
     const navigation = useNavigation();
-    const { carDetails, totalPrice, selectedBank } = route.params; // Data yang diterima dari PaymentScreen
+    const order = useSelector(selectOrder);
+    const dispatch = useDispatch();
 
+
+
+    const { bank, car, totalPrice, startDate, endDate, isDriver } = route.params; // Data yang diterima dari PaymentScreen
+    useFocusEffect(
+        React.useCallback(() => {
+            if (order.status) dispatch(statusChange());
+        }, [order.status]),
+    );
+
+    useFocusEffect(
+        useCallback(() => {
+
+        })
+    )
     const handleCopyToClipboard = (text) => {
         Clipboard.setString(text);
         Alert.alert('Disalin', 'Nomor rekening telah disalin ke clipboard.');
@@ -38,7 +57,7 @@ export default function PaymentDetailScreen({ route }) {
                         <Icon size={32} name={'arrow-left'} color={'black'} />
                     </Button>
                     <View style={styles.headerTextContainer}>
-                        <Text style={styles.headerTitle}>{selectedBank} Transfer</Text>
+                        <Text style={styles.headerTitle}>{bank} Transfer</Text>
                         <Text style={styles.orderId}>Order ID: </Text>
                     </View>
                 </View>
@@ -90,18 +109,18 @@ export default function PaymentDetailScreen({ route }) {
                 <View style={styles.vehicleCard}>
                     <Image
                         style={styles.carIconPlaceholder}
-                        source={{ uri: carDetails.img }}
+                        source={{ uri: car.img }}
                     />
                     <View style={styles.vehicleDetailss}>
-                        <Text style={styles.vehicleName}>{carDetails.name}</Text>
+                        <Text style={styles.vehicleName}>{car.name}</Text>
                         <View style={styles.vehicleIcons}>
                             <View style={styles.iconContainer}>
                                 <Icon size={14} name={'users'} color={'#8A8A8A'} />
-                                <Text style={styles.iconText}>{carDetails.seat}</Text>
+                                <Text style={styles.iconText}>{car.seat}</Text>
                             </View>
                             <View style={styles.iconContainer}>
                                 <Icon size={14} name={'briefcase'} color={'#8A8A8A'} />
-                                <Text style={styles.iconText}>{carDetails.baggage}</Text>
+                                <Text style={styles.iconText}>{car.baggage}</Text>
                             </View>
                         </View>
                         <Text style={styles.price}>{formatCurrency.format(totalPrice)}</Text>

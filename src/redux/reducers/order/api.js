@@ -2,15 +2,17 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 export const postOrder = createAsyncThunk(
-    'user/postLogin',
-    async (payload, { rejectWithValue }) => {
+    'order/postOrder',
+    async ({ form, token }, { rejectWithValue }) => {
         try {
             const response = await axios.post('http://192.168.1.31:3000/api/v1/order',
-                JSON.stringify(payload), {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            }
+                form,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
             const data = response.data;
             return data;
@@ -22,4 +24,29 @@ export const postOrder = createAsyncThunk(
             }
         }
     }
-)
+);
+
+export const updateOrder = createAsyncThunk(
+    'order/updateOrder',
+    async ({ id, form, token }, { rejectWithValue }) => {
+        try {
+            const response = await axios.put(
+                `http://192.168.1.31:3000/api/v1/order/${id}`, form,
+                {
+                    headers: {
+                        Content: 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+            const data = response.data
+            return data
+        } catch (error) {
+            if (error.response.data) {
+                return rejectWithValue(error.response.data.message)
+            } else {
+                return rejectWithValue('Somethink when wrong');
+            }
+        }
+    }
+);

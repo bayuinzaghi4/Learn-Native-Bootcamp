@@ -12,7 +12,8 @@ import Icon from 'react-native-vector-icons/Feather';
 import Markdown from 'react-native-markdown-display';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-
+import { useDispatch } from 'react-redux';
+import { statusChange } from '../redux/reducers/order';
 import Button from '../components/Button';
 import { formatCurrency } from '../utils/formatCurrency';
 
@@ -36,6 +37,7 @@ const md = `## Include
 export default function Detail({ route }) {
     const navigation = useNavigation();
     const { id } = route.params;
+    const dispatch = useDispatch()
 
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState();
@@ -108,7 +110,7 @@ export default function Detail({ route }) {
                     color="#4CAF50"
                     title="Lanjutkan Pembayaran"
                     onPress={() => {
-                        navigation.navigate('Payment', { carDetails: data });
+                        navigation.navigate('Payment', { carDetails: data }, dispatch(statusChange()));
                     }}
                 />
             </View>

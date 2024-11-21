@@ -1,3 +1,5 @@
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     View,
     Text,
@@ -9,20 +11,28 @@ import {
     Modal,
     Pressable,
 } from 'react-native';
-import React, { useState, useEffect } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native';
-import { formatCurrency } from '../utils/formatCurrency';
 import Icon from 'react-native-vector-icons/Feather';
+import { Picker } from '@react-native-picker/picker';
+import { formatCurrency } from '../utils/formatCurrency';
 import Button from '../components/Button';
+import ModalPopup from '../components/Modal';
+// Redux
+import { resetState } from '../redux/reducers/cars';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectUser, logout } from '../redux/reducers/user';
+import { postOrder, selectOrder, updateOrder, orderReset } from '../redux/reducers/order';
 
 export default function PaymentScreen({ route }) {
     const navigation = useNavigation();
     const { carDetails } = route.params;
-
+    const dispatch = useDispatch();
+    const user = useSelector(selectUser);
+    const order = useSelector(selectOrder);
+    const [updated, setUpdated] = useState(false);
     const [isDriver, setIsDriver] = useState(false);
     const [promoCode, setPromoCode] = useState('');
+    const [errorMessage, setErrorMessage] = useState(null);
     const [isPromoApplied, setPromoApplied] = useState(false);
     const [selectedBank, setSelectedBank] = useState(null);
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -30,20 +40,91 @@ export default function PaymentScreen({ route }) {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const [isReturnDatePickerVisible, setReturnDatePickerVisible] = useState(false);
     const [totalPrice, setTotalPrice] = useState(carDetails.price);
-    const [isModalVisible, setModalVisible] = useState(false); // State untuk modal pemberitahuan
 
+    const [bankModal, setBankModal] = useState(false);
+    const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
+
+    // Go Back
     useEffect(() => {
         if (!carDetails) {
             navigation.goBack();
         }
     }, [carDetails]);
 
+    // Handle Payment
+    const handleNextPayment = async () => {
+        const data = {
+            car_id: carDetails.id,
+            start_time: selectedDate,
+            end_time: returnDate,
+            is_driver: isDriver,
+            payment_method: selectedBank
+        };
+
+        const updateData = {
+            start_time: selectedDate,
+            end_time: returnDate,
+            is_driver: isDriver,
+            payment_method: selectedBank
+        };
+
+        if (!order.data) {
+            dispatch(postOrder({ form: data, token: user.token }))
+            setUpdated(false)
+        } else {
+            dispatch(updateOrder({
+                id: order.data.id,
+                form: updateData,
+                token: user.token
+            }));
+            setUpdated(true)
+        }
+    };
+
+    // Navigate
+    useFocusEffect(
+        useCallback(() => {
+            if (order.status === 'success') {
+                setSuccessModalVisible(true);
+                setTimeout(() => {
+                    setSuccessModalVisible(false);
+                    navigation.navigate('Upload', {
+                        bank: selectedBank,
+                        car: carDetails,
+                        totalPrice: totalPrice,
+                        startDate: selectedDate,
+                        endDate: returnDate,
+                        isDriver: isDriver,
+                    });
+                }, 1000);
+            } else if (order.status === 'failed') {
+                setErrorMessage(order.message);
+            
+                setSuccessModalVisible(true);
+                setTimeout(() => {
+                    setSuccessModalVisible(false);
+                }, 1000);
+            } else if (order.message === 'jwt expired') {
+                setErrorMessage(order.message);
+                setBankModal(true);
+                dispatch(orderReset());
+                dispatch(logout());
+                dispatch(resetState());
+                setTimeout(() => {
+                    navigation.navigate('SignIn');
+                    setSuccessModalVisible(false);
+                }, 1000);
+            }
+        }, [order])
+    );
+
+    // Total Price
     const calculateTotalPrice = (startDate, endDate) => {
         const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) || 1;
         const total = days * carDetails.price;
         setTotalPrice(total);
     };
-
+    // Date 
     const handleDateChange = (event, date) => {
         setDatePickerVisible(false);
         if (date) {
@@ -51,7 +132,7 @@ export default function PaymentScreen({ route }) {
             calculateTotalPrice(date, returnDate);
         }
     };
-
+    // Return Date
     const handleReturnDateChange = (event, date) => {
         setReturnDatePickerVisible(false);
         if (date) {
@@ -59,11 +140,11 @@ export default function PaymentScreen({ route }) {
             calculateTotalPrice(selectedDate, date);
         }
     };
-
+    // Bank
     const handleBankSelect = (bank) => {
         setSelectedBank(bank);
     };
-
+    // Promo Code
     const applyPromoCode = () => {
         if (promoCode.trim().toLowerCase() === 'diskon50') {
             setTotalPrice((prevPrice) => prevPrice * 0.5);
@@ -75,6 +156,8 @@ export default function PaymentScreen({ route }) {
 
     return (
         <View style={styles.container}>
+
+            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Icon size={32} name={'arrow-left'} color={'black'} />
@@ -83,6 +166,7 @@ export default function PaymentScreen({ route }) {
             </View>
 
             <ScrollView style={styles.content}>
+                {/* Progres Step */}
                 <View style={styles.progressContainer}>
                     <View style={styles.progressStep}>
                         <View style={[styles.stepCircle, styles.activeStep]}>
@@ -128,6 +212,7 @@ export default function PaymentScreen({ route }) {
                     <Text style={styles.price}>{formatCurrency.format(totalPrice)}</Text>
                 </View>
 
+                {/* Selected Date */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Pilih Tanggal Pemesanan</Text>
                     <TouchableOpacity
@@ -147,6 +232,7 @@ export default function PaymentScreen({ route }) {
                     )}
                 </View>
 
+                {/* Return Date */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Pilih Tanggal Pengembalian</Text>
                     <TouchableOpacity
@@ -167,6 +253,7 @@ export default function PaymentScreen({ route }) {
                     )}
                 </View>
 
+                {/* PICKER DRIVER */}
                 <View>
                     <Text style={styles.driverTitle}>Supir</Text>
                     <View style={styles.isDriverToggle}>
@@ -180,6 +267,7 @@ export default function PaymentScreen({ route }) {
                     </View>
                 </View>
 
+                {/* Selected Bank */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Pilih Bank Transfer</Text>
                     <Text style={styles.sectionDescription}>
@@ -205,6 +293,7 @@ export default function PaymentScreen({ route }) {
                     ))}
                 </View>
 
+                {/* Promo*/}
                 <View style={styles.promoSection}>
                     <Text style={styles.promoTitle}>% Pakai Kode Promo</Text>
                     <View style={styles.promoContainer}>
@@ -227,6 +316,7 @@ export default function PaymentScreen({ route }) {
                 </View>
             </ScrollView>
 
+            {/* Button Bottom */}
             <View style={styles.bottomSection}>
                 <View style={styles.totalContainer}>
                     <Text style={styles.totalText}>{formatCurrency.format(totalPrice)}</Text>
@@ -236,20 +326,60 @@ export default function PaymentScreen({ route }) {
                     borderRadius={8}
                     onPress={() => {
                         if (!selectedBank) {
-                            setModalVisible(true);
+                            setBankModal(true);
+                            setTimeout(() => {
+                                setBankModal(false)
+                            }, 1000)
                         } else {
-                            navigation.navigate('Upload', { carDetails, totalPrice, selectedBank, isDriver });
+                            handleNextPayment()
                         }
                     }}
                     title="Bayar"
                 />
             </View>
 
+            {/*  MODAL SUCCES */}
+            <ModalPopup
+                animationType="fade"
+                transparent={true}
+                visible={isSuccessModalVisible}>
+                <View style={styles.modalContainer}>
+                    {errorMessage !== null ? (
+                        <>
+                            <Icon size={13} name={'x-circle'} />
+                            {Array.isArray(errorMessage) ? (
+                                errorMessage.map(e => {
+                                    return <Text>{e.message}</Text>;
+                                })
+                            ) : (
+                                <Text> {errorMessage} </Text>
+                            )}
+                        </>
+                    ) : updated ? (
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.modalTitle}>Berhasil</Text>
+                            <Text style={styles.modalMessage}>
+                                Pesanan Anda Telah Di Update
+                            </Text>
+                        </View>
+                    ) :
+                        (
+                            <View style={styles.modalContainer}>
+                                <Text style={styles.modalTitle}>Berhasil</Text>
+                                <Text style={styles.modalMessage}>
+                                    Pesanan Anda berhasil dibuat
+                                </Text>
+                            </View>
+                        )}
+                </View>
+            </ModalPopup>
+
+            {/*  MODAL BANK */}
             <Modal
                 animationType="fade"
                 transparent={true}
-                visible={isModalVisible}
-                onRequestClose={() => setModalVisible(false)}
+                visible={bankModal}
+                onRequestClose={() => setBankModal(false)}
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContainer}>
@@ -259,14 +389,18 @@ export default function PaymentScreen({ route }) {
                         </Text>
                         <Pressable
                             style={styles.modalButton}
-                            onPress={() => setModalVisible(false)}
+                            onPress={() => setBankModal(false)
+                            }
                         >
                             <Text style={styles.modalButtonText}>OK</Text>
                         </Pressable>
                     </View>
                 </View>
             </Modal>
+            { }
         </View>
+
+
     );
 }
 const styles = StyleSheet.create({
