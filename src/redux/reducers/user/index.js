@@ -15,6 +15,9 @@ export const userSlice = createSlice({
     reducers: { // kumpulan method untuk mengubah initial state secara synchronous
         logout: (state) => initialState,
         resetState: (state) => initialState,
+        changeUserStatus: (state) => {
+            state.status = 'idle'
+        }
     },
     extraReducers: (builder) => {
         //Post Login Reducer
@@ -52,6 +55,6 @@ export const userSlice = createSlice({
 });
 
 export const selectUser = (state) => state.user; // selector untuk mengambil state user
-export const { logout, resetState } = userSlice.actions; // action untuk logout
+export const { logout, resetState, changeUserStatus } = userSlice.actions; // action untuk logout
 export { postLogin, getProfile }; // action untuk panggil api postLogin dan get Profile
 export default userSlice.reducer; // user reducer untuk di tambahkan ke store

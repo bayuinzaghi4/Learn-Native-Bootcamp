@@ -14,12 +14,17 @@ import Icon from 'react-native-vector-icons/Feather';
 import CarList from '../components/CarList';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import GeoLOC from '../components/GeoLocation';
 
 // REDUX
 import { useDispatch, useSelector } from 'react-redux';
 import { getCars, selectCars, resetState } from '../redux/reducers/cars';
-import { logout	 } from '../redux/reducers/user';
-import { selectUser } from '../redux/reducers/user';
+import { logout } from '../redux/reducers/user';
+import { selectUser, changeUserStatus } from '../redux/reducers/user';
+
+import { HERE_API_KEY } from '@env';
+console.log('HERE_API_KEY:', HERE_API_KEY);
+
 
 const COLORS = {
   primary: '#A43333',
@@ -46,25 +51,26 @@ function Home() {
 
   useFocusEffect(
     useCallback(() => {
-      if(user.token)
-      dispatch(getCars(user.token))
+      if (user.token)
+        dispatch(getCars(user.token))
     }, [user])
   );
 
   useFocusEffect(
     useCallback(() => {
-      if(!user.token){
-      dispatch(resetState())
-      dispatch(logout())}
+      if (!user.token) {
+        dispatch(resetState())
+        dispatch(logout())
+      }
     }, [user.token])
   );
 
   useFocusEffect(
     useCallback(() => {
-    if(!user.data && user.token)
+      if (!user.data && user.token)
         dispatch(getProfile(user.token))
     }, [user])
-);
+  );
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? COLORS.darker : COLORS.lighter,
@@ -84,8 +90,9 @@ function Home() {
             <View style={styles.header}>
               <View style={styles.headerContainer}>
                 <View>
-                  <Text style={styles.headerText}>Hi, {user ? user.data?.fullname : 'Guest'}</Text>
-                  <Text style={styles.headerTextLocation}>Your Location</Text>
+                  <Text style={styles.headerText}>Hi, {user && user.data && user.data.fullname ? user.data.fullname : 'Guest'}
+                  </Text>
+                  <Text style={styles.headerTextLocation}><GeoLOC/></Text>
                 </View>
                 <View >
                   <Image style={styles.imageRounded} source={{ uri: "https://i.pravatar.cc/100" }} width={50} height={50} />
@@ -125,7 +132,7 @@ function Home() {
             passengers={item.seat}
             baggage={item.baggage}
             price={item.price}
-            onPress={() => navigation.navigate('Detail', {id: item.id})}
+            onPress={() => navigation.navigate('Detail', { id: item.id })}
           />
         }
         keyExtractor={item => item.id}

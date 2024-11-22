@@ -1,4 +1,4 @@
-package com.carrental
+package com.inzaghi.carrental
 
 import android.app.Application
 import com.facebook.react.PackageList

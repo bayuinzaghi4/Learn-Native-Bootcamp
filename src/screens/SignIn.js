@@ -14,9 +14,10 @@ import Icon from 'react-native-vector-icons/Feather';
 import { Link, useNavigation, useFocusEffect } from '@react-navigation/native';
 import Button from '../components/Button';
 import ModalPopup from '../components/Modal';
+import GoogleButton from '../components/GoogleButton';
 //redux
 import { useDispatch, useSelector } from 'react-redux';
-import { postLogin, resetState, selectUser } from '../redux/reducers/user';
+import { postLogin, resetState, selectUser, changeUserStatus } from '../redux/reducers/user';
 
 const initialFormState = {
   email: '',
@@ -47,9 +48,11 @@ export default function SignIn() {
       if (user.status === 'success') {
         setModalVisible(true);
         setErrorMessage(null);
+        
         setTimeout(() => {
           setModalVisible(false);
-          navigation.navigate('HomeTabs', { screen: 'Profile' });
+          navigation.navigate('HomeTabs', { screen: 'Profile' },dispatch(changeUserStatus()));
+         
         }, 1000);
       } else if (user.status === 'failed') {
         setModalVisible(true);
@@ -95,6 +98,7 @@ export default function SignIn() {
               color={'#5CB85F'}
             />
           </View>
+          <GoogleButton />
           <View>
             <Text style={styles.authFooterText}>Don’t have an account? <Link screen="SignUp" >Sign Up for free</Link></Text>
           </View>

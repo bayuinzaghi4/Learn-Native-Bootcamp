@@ -99,22 +99,20 @@ export default function PaymentScreen({ route }) {
                 }, 1000);
             } else if (order.status === 'failed') {
                 setErrorMessage(order.message);
-            
                 setSuccessModalVisible(true);
                 setTimeout(() => {
+                    if (order.message === 'jwt expired') {
+                        navigation.navigate('SignIn');
+                        dispatch(orderReset());
+                        dispatch(logout());
+                        dispatch(resetState());
+                        setTimeout(() => {
+        
+                        }, 500); // Tunggu sebentar jika perlu
+                    }
                     setSuccessModalVisible(false);
                 }, 1000);
-            } else if (order.message === 'jwt expired') {
-                setErrorMessage(order.message);
-                setBankModal(true);
-                dispatch(orderReset());
-                dispatch(logout());
-                dispatch(resetState());
-                setTimeout(() => {
-                    navigation.navigate('SignIn');
-                    setSuccessModalVisible(false);
-                }, 1000);
-            }
+            } 
         }, [order])
     );
 
