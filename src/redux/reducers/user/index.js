@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { postLogin, getProfile } from './api';
+import { postLogin, getProfile, postRegister } from './api';
 
 const initialState = {
     data: null, // variable untuk menyimpan data user
@@ -36,6 +36,20 @@ export const userSlice = createSlice({
             console.log(action);
             state.message = action.payload;
         });
+        //Post Register Reducer
+        builder.addCase(postRegister.pending, (state, action) => {
+            state.status = 'loading';
+        });
+        builder.addCase(postRegister.fulfilled, (state, action) => {// action = { type: '', payload: data, meta: {}}
+            state.status = 'success';
+            state.data = action.payload.data.user;
+            state.message = action.payload.message;
+        });
+        builder.addCase(postRegister.rejected, (state, action) => {
+            state.status = 'failed';
+            console.log(action);
+            state.message = action.payload;
+        });
 
         //Get Profile Reducers
         builder.addCase(getProfile.pending, (state, action) => {
@@ -56,5 +70,5 @@ export const userSlice = createSlice({
 
 export const selectUser = (state) => state.user; // selector untuk mengambil state user
 export const { logout, resetState, changeUserStatus } = userSlice.actions; // action untuk logout
-export { postLogin, getProfile }; // action untuk panggil api postLogin dan get Profile
+export { postLogin, getProfile, postRegister }; // action untuk panggil api postLogin dan get Profile
 export default userSlice.reducer; // user reducer untuk di tambahkan ke store

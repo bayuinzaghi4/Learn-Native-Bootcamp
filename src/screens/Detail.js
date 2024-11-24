@@ -7,56 +7,54 @@ import {
     ActivityIndicator,
 } from 'react-native';
 
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import Icon from 'react-native-vector-icons/Feather';
 import Markdown from 'react-native-markdown-display';
-import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import { statusChange } from '../redux/reducers/order';
 import Button from '../components/Button';
 import { formatCurrency } from '../utils/formatCurrency';
+import { getCarDetails, resetState } from '../redux/reducers/cars';
 
 const md = `## Include
-  
-  - Apa saja yang termasuk dalam paket misal durasi max 12 jam
-  - Sudah termasuk bensin selama 12 jam
-  - Sudah termasuk Tiket Wisata
-  - Sudah termasuk pajak
-  - Sudah Termasuk Snack
-  - Sudah Termasuk Minum  
+- Apa saja yang termasuk dalam paket misal durasi max 12 jam
+- Sudah termasuk bensin selama 12 jam
+- Sudah termasuk Tiket Wisata
+- Sudah termasuk pajak
+- Sudah Termasuk Snack
+- Sudah Termasuk Minum  
 
-  ## Exclude
-  
-  - Tidak termasuk biaya makan sopir Rp 75.000/hari
-  - Jika overtime lebih dari 12 jam akan ada tambahan biaya Rp 20.000/jam
-  - Tidak termasuk akomodasi penginapan
-  - Tidak Termasuk Bensin
-  - Tidak Termasuk Driver`.toString();
+## Exclude
+- Tidak termasuk biaya makan sopir Rp 75.000/hari
+- Jika overtime lebih dari 12 jam akan ada tambahan biaya Rp 20.000/jam
+- Tidak termasuk akomodasi penginapan
+- Tidak Termasuk Bensin
+- Tidak Termasuk Driver`.toString();
 
 export default function Detail({ route }) {
     const navigation = useNavigation();
     const { id } = route.params;
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
     const [isLoading, setIsLoading] = useState(true);
-    const [data, setData] = useState();
+    const [data, setData] = useState(null);
 
-    useEffect(() => {
-        const getDetail = async () => {
-            try {
-                const res = await axios(`http://192.168.1.31:3000/api/v1/cars/${id}`);
-                setData(res.data.data);
-                setIsLoading(false);
-            } catch (e) {
-                console.log(e);
-            }
-        };
-
-        if (id) {
-            getDetail();
-        }
-    }, [id]);
+    useFocusEffect(
+        useCallback(() => {
+            const fetchData = async () => {
+                try {
+                    const response = await dispatch(getCarDetails(id));
+                    setData(response.payload);
+                } catch (error) {
+                    console.error('Error fetching car details:', error);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+            fetchData();
+        }, [id, dispatch])
+    );
 
     if (isLoading) {
         return <ActivityIndicator />;
@@ -64,17 +62,11 @@ export default function Detail({ route }) {
 
     return (
         <View style={styles.container}>
-            {/* Header */}
             <View style={styles.header}>
-                {/* Back Button */}
                 <Button style={styles.backButton} onPress={() => navigation.goBack()}>
                     <Icon size={32} name="arrow-left" color="#000" />
                 </Button>
-
-                {/* Title */}
                 <Text style={styles.title}>{data.name}</Text>
-
-                {/* Info Row */}
                 <View style={styles.infoRow}>
                     <View style={styles.infoItem}>
                         <Icon size={14} name="users" color="#000" />
@@ -82,35 +74,32 @@ export default function Detail({ route }) {
                     </View>
                     <View style={styles.infoItem}>
                         <Icon size={14} name="briefcase" color="#000" />
-                        <Text style={styles.infoText}>{data.baggage}</Text>
+                        <Text style={styles.infoText}>{data?.baggage || 'N/A'}</Text>
                     </View>
                 </View>
             </View>
-
-            {/* Content */}
             <ScrollView contentContainerStyle={styles.contentContainer}>
-                {/* Gambar */}
                 <View style={styles.heading}>
                     <Image
                         style={styles.image}
-                        source={{ uri: data.img }}
+                        source={{ uri: data?.img || 'https://via.placeholder.com/150' }}
                         resizeMode="contain"
                     />
                 </View>
-
-                {/* Markdown */}
                 <Markdown style={styles.details}>{md}</Markdown>
             </ScrollView>
-
-            {/* Footer */}
             <View style={styles.footer}>
-                <Text style={styles.price}>{formatCurrency.format(data.price || 0)} </Text>
+                <Text style={styles.price}>{formatCurrency.format(data?.price || 0)} </Text>
                 <Button
                     borderRadius={8}
                     color="#4CAF50"
                     title="Lanjutkan Pembayaran"
                     onPress={() => {
-                        navigation.navigate('Payment', { carDetails: data }, dispatch(statusChange()));
+                        if (data) {
+                            navigation.navigate('Payment', { carDetails: data }, dispatch(statusChange()));
+                        } else {
+                            alert('Data tidak tersedia. Coba lagi nanti.');
+                        }
                     }}
                 />
             </View>

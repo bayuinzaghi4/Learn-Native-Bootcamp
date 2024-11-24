@@ -5,7 +5,7 @@ export const postOrder = createAsyncThunk(
     'order/postOrder',
     async ({ form, token }, { rejectWithValue }) => {
         try {
-            const response = await axios.post('http://192.168.1.31:3000/api/v1/order',
+            const response = await axios.post('http://192.168.79.43:3000/api/v1/order',
                 form,
                 {
                     headers: {
@@ -31,7 +31,7 @@ export const updateOrder = createAsyncThunk(
     async ({ id, form, token }, { rejectWithValue }) => {
         try {
             const response = await axios.put(
-                `http://192.168.1.31:3000/api/v1/order/${id}`, form,
+                `http://192.168.79.43:3000/api/v1/order/${id}`, form,
                 {
                     headers: {
                         Content: 'application/json',
@@ -50,3 +50,27 @@ export const updateOrder = createAsyncThunk(
         }
     }
 );
+
+export const getMyOrder = createAsyncThunk(
+    'order/getMyOrder',
+    async (token, { rejectWithValue }) => {
+        try {
+            const response = await axios.get('http://192.168.79.43:3000/api/v1/order/myorder',
+                {
+                    headers: {
+                        Content: 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
+            );
+            const data = response.data;
+            return data;
+        } catch (error) {
+            if (error.response.data) {
+                return rejectWithValue(error.response.data.message)
+            } else {
+                return rejectWithValue('Somethink when wrong');
+            }
+        }
+    }
+)

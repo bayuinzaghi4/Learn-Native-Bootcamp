@@ -5,7 +5,7 @@ export const postLogin = createAsyncThunk(
     'user/postLogin',
     async (payload, { rejectWithValue }) => {
         try {
-            const res = await axios.post('http://192.168.1.31:3000/api/v1/auth/signin',
+            const res = await axios.post('http://192.168.79.43:3000/api/v1/auth/signin',
                 JSON.stringify(payload), {
                 headers: {
                     'Content-Type': 'application/json',
@@ -15,9 +15,32 @@ export const postLogin = createAsyncThunk(
             const data = res.data;
             return data;
         } catch (e) {
-            if(e.response.data){
+            if (e.response.data) {
                 return rejectWithValue(e.response.data.message);
-            }else{
+            } else {
+                return rejectWithValue('Something went wrong');
+            }
+        }
+    }
+);
+
+export const postRegister = createAsyncThunk(
+    'user/postRegister',
+    async (payload, { rejectWithValue }) => {
+        try {
+            const res = await axios.post("http://192.168.79.43:3000/api/v1/auth/signup",
+                JSON.stringify(payload), {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }
+            );
+            const data = res.data;
+            return data;
+        } catch (e) {
+            if (e.response.data) {
+                return rejectWithValue(e.response.data.message);
+            } else {
                 return rejectWithValue('Something went wrong');
             }
         }
@@ -37,9 +60,9 @@ export const getProfile = createAsyncThunk(
             const { data } = res.data;
             return data;
         } catch (e) {
-            if(e.response.data){
+            if (e.response.data) {
                 return rejectWithValue(e.response.data.message);
-            }else{
+            } else {
                 return rejectWithValue('Something went wrong');
             }
         }
