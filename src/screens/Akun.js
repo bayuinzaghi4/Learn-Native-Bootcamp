@@ -5,6 +5,7 @@ import Button from '../components/Button';
 import { useSelector, useDispatch } from 'react-redux';
 import { getProfile, selectUser, logout } from '../redux/reducers/user';
 import { resetState } from '../redux/reducers/cars';
+import { orderReset } from '../redux/reducers/order';
 
 export default function Akun() {
     const navigation = useNavigation();
@@ -34,7 +35,7 @@ export default function Akun() {
                         <Image height={50} width={50} source={{ uri: user.data?.avatar ? user.data?.avatar : "https://i.pravatar.cc/100" }} />
                         <Text>Halo, {user.data?.fullname}</Text>
                         <Button
-                            onPress={() => dispatch(logout(), dispatch(resetState()))}
+                            onPress={() => dispatch(logout(), dispatch(resetState()),dispatch(orderReset()))}
                             title={'Logout'}
                             color={'#A43333'}
                         />

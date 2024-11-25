@@ -23,6 +23,7 @@ import { logout } from '../redux/reducers/user';
 import { selectUser, changeUserStatus } from '../redux/reducers/user';
 
 import { HERE_API_KEY } from '@env';
+import { orderReset } from '../redux/reducers/order';
 console.log('HERE_API_KEY:', HERE_API_KEY);
 
 
@@ -61,6 +62,7 @@ function Home() {
       if (!user.token) {
         dispatch(resetState())
         dispatch(logout())
+        dispatch(orderReset())
       }
     }, [user.token])
   );
@@ -92,10 +94,10 @@ function Home() {
                 <View>
                   <Text style={styles.headerText}>Hi, {user && user.data && user.data.fullname ? user.data.fullname : 'Guest'}
                   </Text>
-                  <Text style={styles.headerTextLocation}><GeoLOC/></Text>
+                  <Text style={styles.headerTextLocation}><GeoLOC /></Text>
                 </View>
                 <View >
-                  <Image style={styles.imageRounded} source={{ uri: "https://i.pravatar.cc/100" }} width={50} height={50} />
+                  <Image style={styles.imageRounded} source={{ uri: user.data ? user.data?.avatar : "https://i.pravatar.cc/100" }} width={50} height={50} />
                 </View>
               </View>
               {/* banner */}
