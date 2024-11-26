@@ -96,7 +96,7 @@ export default function Detail({ route }) {
                     title="Lanjutkan Pembayaran"
                     onPress={() => {
                         if (data) {
-                            navigation.navigate('Payment', { carDetails: data }, dispatch(statusChange()));
+                            navigation.navigate('Payment', { carDetails: data }, );
                         } else {
                             alert('Data tidak tersedia. Coba lagi nanti.');
                         }

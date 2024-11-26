@@ -5,7 +5,7 @@ export const postLogin = createAsyncThunk(
     'user/postLogin',
     async (payload, { rejectWithValue }) => {
         try {
-            const res = await axios.post('http://172.17.32.188:3000/api/v1/auth/signin',
+            const res = await axios.post('http://192.168.1.31:3000/api/v1/auth/signin',
                 JSON.stringify(payload), {
                 headers: {
                     'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ export const postRegister = createAsyncThunk(
     'user/postRegister',
     async (payload, { rejectWithValue }) => {
         try {
-            const res = await axios.post("http://172.17.32.188:3000/api/v1/auth/signup",
+            const res = await axios.post("http://192.168.1.31:3000/api/v1/auth/signup",
                 JSON.stringify(payload), {
                 headers: {
                     'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ export const getProfile = createAsyncThunk(
     'user/getProfile',
     async (token, { rejectWithValue }) => {
         try {
-            const res = await axios('http://172.17.32.188:3000/api/v1/auth/whoami', {
+            const res = await axios('http://192.168.1.31:3000/api/v1/auth/whoami', {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
@@ -73,7 +73,7 @@ export const googleLogin = createAsyncThunk(
     'user/googleLogin',
     async (payload, { rejectWithValue }) => {
         try {
-            const res = await axios.post('http://172.17.32.188:3000/api/v1/auth/googleSignIn', payload);
+            const res = await axios.post('http://192.168.1.31:3000/api/v1/auth/googleSignIn', payload);
             const data = res.data;
             return data;
         } catch (e) {

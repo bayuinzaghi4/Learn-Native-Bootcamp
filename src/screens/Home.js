@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getCars, selectCars, resetState } from '../redux/reducers/cars';
 import { logout } from '../redux/reducers/user';
 import { selectUser, changeUserStatus } from '../redux/reducers/user';
+import { statusChange } from '../redux/reducers/order';
 
 import { HERE_API_KEY } from '@env';
 import { orderReset } from '../redux/reducers/order';
@@ -53,7 +54,9 @@ function Home() {
   useFocusEffect(
     useCallback(() => {
       if (user.token)
-        dispatch(getCars(user.token))
+      dispatch(getCars(user.token))
+      dispatch(statusChange())
+      dispatch(orderReset())
     }, [user])
   );
 

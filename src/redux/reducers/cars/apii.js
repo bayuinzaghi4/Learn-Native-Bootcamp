@@ -5,7 +5,7 @@ export const getCars = createAsyncThunk(
     'cars/getCars',
     async (token, { rejectWithValue }) => {
         try {
-            const res = await axios.get('http://172.17.32.188:3000/api/v1/cars',
+            const res = await axios.get('http://192.168.1.31:3000/api/v1/cars',
                 {
                     headers: {
                         'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export const getCarDetails = createAsyncThunk(
             if (!id) {
                 return rejectWithValue('ID is missing or undefined');
             }
-            const res = await axios.get(`http://172.17.32.188:3000/api/v1/cars/${id}`,
+            const res = await axios.get(`http://192.168.1.31:3000/api/v1/cars/${id}`,
                 {
                 headers: {
                     'Content-Type': 'application/json',

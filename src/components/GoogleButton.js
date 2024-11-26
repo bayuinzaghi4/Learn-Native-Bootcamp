@@ -1,8 +1,10 @@
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { GOOGLE_WEB_CLIENT_ID } from '@env';
 import { useDispatch } from 'react-redux';
 import { googleLogin } from '../redux/reducers/user';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 GoogleSignin.configure({
     webClientId: GOOGLE_WEB_CLIENT_ID,
@@ -31,16 +33,26 @@ export default function GoogleButton() {
         if (!idToken) {
             throw new Error('No ID token found');
         }
-        dispatch(googleLogin({idToken}))
+        dispatch(googleLogin({ idToken }))
     }
+
+    useFocusEffect(
+        useCallback(() => {
+            GoogleSignin.revokeAccess();
+        }, [])
+    );
+
     return (
         <View>
             <GoogleSigninButton
+                style={styles.GoogleButton}
                 size={GoogleSigninButton.Size.Wide}
                 color={GoogleSigninButton.Color.Dark}
                 onPress={onGoogleButtonPress}
-                // disabled={isInProgress}
+            // disabled={isInProgress}
             />
         </View>
     )
 }
+
+const styles = StyleSheet 

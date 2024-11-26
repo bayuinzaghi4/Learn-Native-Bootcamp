@@ -16,13 +16,14 @@ import Button from '../components/Button';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { statusChange, selectOrder } from '../redux/reducers/order';
 import {useSelector, useDispatch} from 'react-redux';
+import { startCountdown, decrementCountdown, resetCountdown } from '../redux/reducers/timer/actionCreator';
 
 
 export default function PaymentDetailScreen({ route }) {
     const navigation = useNavigation();
     const order = useSelector(selectOrder);
     const dispatch = useDispatch();
-
+    const countdownTime = useSelector(state => state.countdowns[order.id]);
 
 
     const { bank, car, totalPrice, startDate, endDate, isDriver } = route.params; // Data yang diterima dari PaymentScreen
@@ -46,6 +47,8 @@ export default function PaymentDetailScreen({ route }) {
         // Logika untuk mengonfirmasi pembayaran
         Alert.alert('Pembayaran Dikonfirmasi', 'Kami akan memverifikasi pembayaran Anda.');
     };
+
+    
 
     return (
         <View style={styles.container}>
@@ -170,6 +173,12 @@ export default function PaymentDetailScreen({ route }) {
                     onPress={() => navigation.navigate('HomeTabs', { screen: 'Order' })}
                 >
                     <Text style={styles.viewOrdersButtonText}>Lihat Daftar Pesanan</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.viewOrdersButtonCancel}
+                    onPress={() => navigation.navigate('HomeTabs', { screen: 'Order' })}
+                >
+                    <Text style={styles.viewOrdersButtonText}>Cancel Order</Text>
                 </TouchableOpacity>
 
             </ScrollView>
@@ -378,6 +387,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 5,
         marginLeft: 5,
+    },
+    viewOrdersButtonCancel: {
+        borderWidth: 1,
+        borderColor: '#4CAF50',
+        padding: 16,
+        borderRadius: 14,
+        alignItems: 'center',
+        marginRight: 5,
+        marginLeft: 5,
+        marginTop: 10
     },
     viewOrdersButtonText: {
         color: '#4CAF50',

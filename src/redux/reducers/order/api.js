@@ -5,7 +5,7 @@ export const postOrder = createAsyncThunk(
     'order/postOrder',
     async ({ form, token }, { rejectWithValue }) => {
         try {
-            const response = await axios.post('http://172.17.32.188:3000/api/v1/order',
+            const response = await axios.post('http://192.168.1.31:3000/api/v1/order',
                 form,
                 {
                     headers: {
@@ -31,7 +31,7 @@ export const updateOrder = createAsyncThunk(
     async ({ id, form, token }, { rejectWithValue }) => {
         try {
             const response = await axios.put(
-                `http://172.17.32.188:3000/api/v1/order/${id}`, form,
+                `http://192.168.1.31:3000/api/v1/order/${id}`, form,
                 {
                     headers: {
                         Content: 'application/json',
@@ -55,7 +55,7 @@ export const getMyOrder = createAsyncThunk(
     'order/getMyOrder',
     async (token, { rejectWithValue }) => {
         try {
-            const response = await axios.get('http://172.17.32.188:3000/api/v1/order/myorder',
+            const response = await axios.get('http://192.168.1.31:3000/api/v1/order/myorder',
                 {
                     headers: {
                         Content: 'application/json',

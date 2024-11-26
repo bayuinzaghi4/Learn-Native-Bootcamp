@@ -6,10 +6,8 @@ import {
   SafeAreaView,
   useColorScheme,
   Text,
-  ImageBackgroundComponent,
   ActivityIndicator,
 } from 'react-native';
-import CarList from '../components/CarList';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { selectUser, logout } from '../redux/reducers/user';
@@ -18,6 +16,7 @@ import { orderReset, selectOrder } from '../redux/reducers/order';
 import { useSelector, useDispatch } from 'react-redux';
 import ModalPopup from '../components/Modal';
 import Icon from 'react-native-vector-icons/Feather';
+import OrderList from '../components/OrderList';
 const Colors = {
   primary: '#A43333',
   secondary: '#SCB85F',
@@ -41,7 +40,6 @@ export default function Order() {
   useFocusEffect(
     React.useCallback(() => {
       dispatch(getMyOrder(user.token))
-      console.log("feuhfehfoej", user.token);
     }, [user.token])
   )
 
@@ -49,7 +47,6 @@ export default function Order() {
     React.useCallback(() => {
       if (order.message === 'jwt expired' || order.message === 'jwt malformed') {
         dispatch(logout())
-        dispatch(orderReset())
         setModalVisible(true);
         setErrorMessage(order.message)
         setTimeout(() => {
@@ -58,7 +55,23 @@ export default function Order() {
         }, 1000)
       }
     }, [order])
-  )
+  );
+
+  const CancelOrder = async id => {
+    console.log('text');
+    try {
+      const cancel = await apiClient.put(`http://192.168.1.31:3000/api/v1/order/${id}/cancel`, {
+        headers: {
+          Content: 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      dispatch(getMyOrder(user.token));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -81,20 +94,22 @@ export default function Order() {
           const startTime = new Date(item.start_time).getTime(); // Konversi ke milidetik
           const endTime = new Date(item.end_time).getTime(); // Konversi ke milidetik
           const totalDays = Math.round((endTime - startTime) / (1000 * 60 * 60 * 24)); // Konversi ke hari
-          const startDate = new Date(item.start_time).toLocaleDateString('id-ID')
+          const startDate = new Date(item.start_time).toLocaleDateString(
+            'id-ID',
+          );
           const isDisabled = item.status === 'canceled' || item.status === 'paid'
+
+
           return (
-            <CarList
+            <OrderList
               key={item.toString()}
               image={{ uri: item.cars.img }}
-              invoice={item.order_no}
               carName={item.cars.name}
-              passengers={item.seat}
-              baggage={item.baggage}
               status={`Status : ${item.status}`}
               startDate={`Tanggal Sewa : ${startDate}`}
               endDate={`waktu sewa : ${totalDays} Hari`} // total sewa hari
               price={item.total}
+              CancelOrder={() => CancelOrder(item.id)}
               onPress={() => !isDisabled && dispatch(getOrderDetail({ id: item.id, token: user.token }))}
               disabled={isDisabled} // Disable button if canceled
             />

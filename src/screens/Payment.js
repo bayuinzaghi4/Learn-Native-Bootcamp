@@ -77,7 +77,7 @@ export default function PaymentScreen({ route }) {
                 form: updateData,
                 token: user.token
             }));
-            setUpdated(true)
+            setUpdated(true)            
         }
     };
 
