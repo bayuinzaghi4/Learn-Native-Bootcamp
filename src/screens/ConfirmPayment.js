@@ -15,40 +15,52 @@ import { formatCurrency } from '../utils/formatCurrency'; // Pastikan fungsi for
 import Button from '../components/Button';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { statusChange, selectOrder } from '../redux/reducers/order';
-import {useSelector, useDispatch} from 'react-redux';
-import { startCountdown, decrementCountdown, resetCountdown } from '../redux/reducers/timer/actionCreator';
+import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
+import { selectUser } from '../redux/reducers/user';
 
 
 export default function PaymentDetailScreen({ route }) {
     const navigation = useNavigation();
     const order = useSelector(selectOrder);
+    const user = useSelector(selectUser)
     const dispatch = useDispatch();
     const countdownTime = useSelector(state => state.countdowns[order.id]);
-
-
-    const { bank, car, totalPrice, startDate, endDate, isDriver } = route.params; // Data yang diterima dari PaymentScreen
+    const { bank, car, totalPrice } = route.params; // Data yang diterima dari PaymentScreen
     useFocusEffect(
         React.useCallback(() => {
             if (order.status) dispatch(statusChange());
         }, [order.status]),
     );
 
-    useFocusEffect(
-        useCallback(() => {
-
-        })
-    )
     const handleCopyToClipboard = (text) => {
         Clipboard.setString(text);
         Alert.alert('Disalin', 'Nomor rekening telah disalin ke clipboard.');
     };
-
+    
     const handleConfirmPayment = () => {
-        // Logika untuk mengonfirmasi pembayaran
-        Alert.alert('Pembayaran Dikonfirmasi', 'Kami akan memverifikasi pembayaran Anda.');
+        navigation.navigate('PaymentConfirmation');
     };
 
-    
+    const CancelOrder = async () => {
+        try {
+            const cancel = await axios.put(`http://192.168.1.31:3000/api/v1/order/${order.data.id}/cancel`, {},
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                }
+            );
+            if (cancel.status === 200) {
+                navigation.navigate('HomeTabs', { screen: 'Order' });
+            }
+        } catch (e) {
+            Alert.alert('Error', 'Terjadi kesalahan saat membatalkan pesanan: ' + (e.response ? e.response.data.message : e.message));
+        }
+    };
+
+
 
     return (
         <View style={styles.container}>
@@ -93,6 +105,7 @@ export default function PaymentDetailScreen({ route }) {
 
             <ScrollView>
                 {/* Countdown Timer */}
+
                 <Text style={styles.countdownText}>Selesaikan Pembayaran Sebelum</Text>
                 <CountDown
                     until={23 * 60 * 60 + 55 * 60 + 9} // Total detik (contoh: 23 jam, 55 menit, 9 detik)
@@ -176,7 +189,7 @@ export default function PaymentDetailScreen({ route }) {
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.viewOrdersButtonCancel}
-                    onPress={() => navigation.navigate('HomeTabs', { screen: 'Order' })}
+                    onPress={CancelOrder}
                 >
                     <Text style={styles.viewOrdersButtonText}>Cancel Order</Text>
                 </TouchableOpacity>

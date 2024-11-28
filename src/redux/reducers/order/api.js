@@ -74,3 +74,29 @@ export const getMyOrder = createAsyncThunk(
         }
     }
 )
+
+export const payment = createAsyncThunk(
+    'order/payment',
+    async ({id,receipt, token}, {rejectWithValue}) => {
+      try {
+        const response = await axios.put(
+          `http://192.168.1.31:3000/api/v1/order/${id}/payment`,
+          receipt,
+          {
+            headers: {
+              Content: 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        const data = response.data;
+        return data;
+      } catch (error) {
+        if (error.response.data) {
+          return rejectWithValue(error.response.data.message);
+        } else {
+          return rejectWithValue('Somethink when wrong');
+        }
+      }
+    },
+  );

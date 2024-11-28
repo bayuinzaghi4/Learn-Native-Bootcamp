@@ -17,6 +17,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import ModalPopup from '../components/Modal';
 import Icon from 'react-native-vector-icons/Feather';
 import OrderList from '../components/OrderList';
+import axios from 'axios';
 const Colors = {
   primary: '#A43333',
   secondary: '#SCB85F',
@@ -58,9 +59,8 @@ export default function Order() {
   );
 
   const CancelOrder = async id => {
-    console.log('text');
     try {
-      const cancel = await apiClient.put(`http://192.168.1.31:3000/api/v1/order/${id}/cancel`, {
+      const cancel = await axios.put(`http://192.168.1.31:3000/api/v1/order/${id}/cancel`, {
         headers: {
           Content: 'application/json',
           Authorization: `Bearer ${user.token}`,

@@ -16,6 +16,7 @@ import Detail from './src/screens/Detail';
 import PaymentScreen from './src/screens/Payment';
 import PaymentDetailScreen from './src/screens/ConfirmPayment';
 import Order from './src/screens/Order';
+import PaymentConfirmation from './src/screens/Upload';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -83,6 +84,9 @@ function App() {
             <Stack.Screen options={{
               headerShown:false
             }} name="Upload" component={PaymentDetailScreen} />
+            <Stack.Screen options={{
+              headerShown:false
+            }} name="PaymentConfirmation" component={PaymentConfirmation} />
           </Stack.Navigator>
         </NavigationContainer>
       </PersistGate>
