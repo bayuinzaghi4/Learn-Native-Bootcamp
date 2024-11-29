@@ -20,13 +20,13 @@ import axios from 'axios';
 import { selectUser } from '../redux/reducers/user';
 
 
-export default function PaymentDetailScreen({ route }) {
+export default function PaymentDetailScreen() {
     const navigation = useNavigation();
     const order = useSelector(selectOrder);
     const user = useSelector(selectUser)
     const dispatch = useDispatch();
-    const countdownTime = useSelector(state => state.countdowns[order.id]);
-    const { bank, car, totalPrice } = route.params; // Data yang diterima dari PaymentScreen
+
+
     useFocusEffect(
         React.useCallback(() => {
             if (order.status) dispatch(statusChange());
@@ -60,8 +60,6 @@ export default function PaymentDetailScreen({ route }) {
         }
     };
 
-
-
     return (
         <View style={styles.container}>
             {/* Header */}
@@ -72,8 +70,8 @@ export default function PaymentDetailScreen({ route }) {
                         <Icon size={32} name={'arrow-left'} color={'black'} />
                     </Button>
                     <View style={styles.headerTextContainer}>
-                        <Text style={styles.headerTitle}>{bank} Transfer</Text>
-                        <Text style={styles.orderId}>Order ID: </Text>
+                        <Text style={styles.headerTitle}>Transfer</Text>
+                        <Text style={styles.orderId}>Order ID: {order.data?.id} </Text>
                     </View>
                 </View>
             </View>
@@ -105,7 +103,6 @@ export default function PaymentDetailScreen({ route }) {
 
             <ScrollView>
                 {/* Countdown Timer */}
-
                 <Text style={styles.countdownText}>Selesaikan Pembayaran Sebelum</Text>
                 <CountDown
                     until={23 * 60 * 60 + 55 * 60 + 9} // Total detik (contoh: 23 jam, 55 menit, 9 detik)
@@ -125,21 +122,21 @@ export default function PaymentDetailScreen({ route }) {
                 <View style={styles.vehicleCard}>
                     <Image
                         style={styles.carIconPlaceholder}
-                        source={{ uri: car.img }}
+                        source={{uri: order.data?.cars?.img}}
                     />
                     <View style={styles.vehicleDetailss}>
-                        <Text style={styles.vehicleName}>{car.name}</Text>
+                        <Text style={styles.vehicleName}>{order.data?.cars?.name}</Text>
                         <View style={styles.vehicleIcons}>
                             <View style={styles.iconContainer}>
                                 <Icon size={14} name={'users'} color={'#8A8A8A'} />
-                                <Text style={styles.iconText}>{car.seat}</Text>
+                                <Text style={styles.iconText}>{order.data?.cars?.seat}</Text>
                             </View>
                             <View style={styles.iconContainer}>
                                 <Icon size={14} name={'briefcase'} color={'#8A8A8A'} />
-                                <Text style={styles.iconText}>{car.baggage}</Text>
+                                <Text style={styles.iconText}>{order.data?.cars?.baggage}</Text>
                             </View>
                         </View>
-                        <Text style={styles.price}>{formatCurrency.format(totalPrice)}</Text>
+                        <Text style={styles.price}>{formatCurrency.format(order.data?.total)}</Text>
                     </View>
                 </View>
 
@@ -165,10 +162,10 @@ export default function PaymentDetailScreen({ route }) {
                     <View style={styles.bankRow}>
                         <Text style={styles.label}>Total Bayar</Text>
                         <TouchableOpacity
-                            onPress={() => handleCopyToClipboard(totalPrice)}
+                            onPress={() => handleCopyToClipboard(order.data?.total)}
                             style={styles.copyButton}
                         >
-                            <Text style={styles.copyText}>{formatCurrency.format(totalPrice)}</Text>
+                            <Text style={styles.copyText}>{formatCurrency.format(order.data?.total)}</Text>
                             <Icon name="copy" size={18} color="#4CAF50" />
                         </TouchableOpacity>
                     </View>

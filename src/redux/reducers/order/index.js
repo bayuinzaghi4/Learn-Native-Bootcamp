@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { postOrder, updateOrder, getMyOrder, payment } from "./api";
+import { postOrder, updateOrder, getMyOrder, payment, getOrderDetail } from "./api";
 
 const initialState = {
     data: null,
@@ -50,7 +50,7 @@ export const orderSlice = createSlice({
             state.status = 'loading';
           });
           builder.addCase(getMyOrder.fulfilled, (state, action) => {
-            state.status = 'success';
+            state.status = 'idle';
             state.data = action.payload.data;
             state.message = action.payload;
           });
@@ -69,10 +69,23 @@ export const orderSlice = createSlice({
             state.status = 'failed';
             state.message = action.payload;
           });
+
+          builder.addCase(getOrderDetail.pending, (state, action) => {
+            state.status = 'loading';
+          });
+          builder.addCase(getOrderDetail.fulfilled, (state, action) => {
+            state.status = 'success';
+            state.data = action.payload.data;
+            state.message = action.payload;
+          });
+          builder.addCase(getOrderDetail.rejected, (state, action) => {
+            state.status = 'failed';
+            state.message = action.payload;
+          });
     }
 });
 
 export const selectOrder = (state) => state.order;
 export const { orderReset, statusChange } = orderSlice.actions;
-export { postOrder, updateOrder, payment };
+export { postOrder, updateOrder, payment, getOrderDetail };
 export default orderSlice.reducer;

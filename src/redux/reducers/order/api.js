@@ -73,7 +73,7 @@ export const getMyOrder = createAsyncThunk(
             }
         }
     }
-)
+);
 
 export const payment = createAsyncThunk(
     'order/payment',
@@ -99,4 +99,29 @@ export const payment = createAsyncThunk(
         }
       }
     },
-  );
+);
+
+export const getOrderDetail = createAsyncThunk(
+    'order/getOrderDetail',
+    async ({id, token}, {rejectWithValue}) => {
+      try {
+        const response = await axios.get(
+          `http://192.168.1.31:3000/api/v1/order/${id}`,
+          {
+            headers: {
+              Content: 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        const data = response.data;
+        return data;
+      } catch (error) {
+        if (error.response.data) {
+          return rejectWithValue(error.response.data.message);
+        } else {
+          return rejectWithValue('Somethink when wrong');
+        }
+      }
+    },
+);

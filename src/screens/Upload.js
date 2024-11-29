@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
 import { selectOrder, payment } from '../redux/reducers/order';
 import { selectUser } from '../redux/reducers/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-
+import { launchImageLibrary } from 'react-native-image-picker';
 
 export default function PaymentConfirmation() {
     const [image, setImage] = useState(null);

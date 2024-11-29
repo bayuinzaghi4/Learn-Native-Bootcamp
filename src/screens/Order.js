@@ -11,8 +11,9 @@ import {
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { selectUser, logout } from '../redux/reducers/user';
-import { getMyOrder, postOrder } from '../redux/reducers/order/api';
+import { getMyOrder, getOrderDetail } from '../redux/reducers/order/api';
 import { orderReset, selectOrder } from '../redux/reducers/order';
+import { resetState } from '../redux/reducers/cars';
 import { useSelector, useDispatch } from 'react-redux';
 import ModalPopup from '../components/Modal';
 import Icon from 'react-native-vector-icons/Feather';
@@ -42,7 +43,15 @@ export default function Order() {
     React.useCallback(() => {
       dispatch(getMyOrder(user.token))
     }, [user.token])
-  )
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (order.status === 'success') {
+        navigation.navigate('Upload');
+      }
+    }, [order]),
+  );
 
   useFocusEffect(
     React.useCallback(() => {
@@ -107,11 +116,11 @@ export default function Order() {
               carName={item.cars.name}
               status={`Status : ${item.status}`}
               startDate={`Tanggal Sewa : ${startDate}`}
-              endDate={`waktu sewa : ${totalDays} Hari`} // total sewa hari
+              endDate={`waktu sewa : ${totalDays} Hari`} 
               price={item.total}
               CancelOrder={() => CancelOrder(item.id)}
               onPress={() => !isDisabled && dispatch(getOrderDetail({ id: item.id, token: user.token }))}
-              disabled={isDisabled} // Disable button if canceled
+              disabled={isDisabled} 
             />
           )
         }
