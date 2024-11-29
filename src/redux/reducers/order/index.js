@@ -51,7 +51,7 @@ export const orderSlice = createSlice({
           });
           builder.addCase(getMyOrder.fulfilled, (state, action) => {
             state.status = 'idle';
-            state.data = action.payload.data;
+            state.data = action.payload.data; 
             state.message = action.payload;
           });
           builder.addCase(getMyOrder.rejected, (state, action) => {
